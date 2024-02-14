@@ -1,0 +1,20 @@
+[
+    {
+        "idSubject": 1,
+        "name": "Mathematics",
+        "description": "This subject covers basic mathematical concepts such as algebra, geometry, and calculus. Grading is based on homework assignments, quizzes, tests, and a final exam.",
+        "appId": 1
+    },
+    {
+        "idSubject": 2,
+        "name": "Physics",
+        "description": "Physics introduces students to fundamental concepts in mechanics, electricity, magnetism, optics, and thermodynamics. Assessment includes laboratory reports, problem sets, quizzes, midterms, and a final exam.",
+        "appId": 2
+    },
+    {
+        "idSubject": 3,
+        "name": "Chemistry",
+        "description": "Chemistry explores the properties and behavior of matter. Evaluation criteria include laboratory work, problem-solving exercises, quizzes, midterms, and a comprehensive final exam.",
+        "appId": 3
+    }
+]
