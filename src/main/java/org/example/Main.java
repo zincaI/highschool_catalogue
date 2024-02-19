@@ -1,5 +1,18 @@
 package org.example;
 
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -7,135 +20,280 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class Main {
-    public static void main(String[] args) {
-        try {
-            List<AppUser> users = AppUser.loadUsers();
-            List<Subject> subjects = Subject.loadUsers();
-            List<Grade> grades = Grade.loadGrades();
+public class Main extends Application {
 
-            Main mainInstance = new Main();
+        private Stage loginStage;
+        List<AppUser> users = AppUser.loadUsers();
+        List<Subject> subjects = Subject.loadUsers();
+        List<Grade> grades = Grade.loadGrades();
 
-            AppUser appConnectedUser=null;
+    public Main() throws IOException {
+    }
 
-            Scanner scanner = new Scanner(System.in);
+    public static void main (String[]args){
+        // Launch the JavaFX application
+        launch(args);
+    }
 
+        @Override
+        public void start (Stage primaryStage) throws IOException {
+
+        loginStage = new Stage();
+
+        // Setăm culoarea textului la roșu pentru a atrage atenția
+
+        Label errorLabel = new Label();
+        errorLabel.setTextFill(Color.RED);
+
+        // Creăm casetele de introducere pentru email și parolă
+        TextField emailField = new TextField();
+        emailField.setStyle("-fx-pref-width: 200px; -fx-background-color: rgb(143,188,143); -fx-text-fill: rgb(208,240,192);-fx-prompt-text-fill:rgb(208,240,192);"); // Setăm lățimea preferată și culoarea de fundal
+
+        emailField.setPromptText("Introduce email");
+
+        TextField passwordField = new TextField();
+        passwordField.setStyle("-fx-pref-width: 200px; -fx-background-color: rgb(143,188,143); -fx-text-fill: rgb(208,240,192);-fx-prompt-text-fill:rgb(208,240,192);"); // Setăm lățimea preferată și culoarea de fundal
+
+        passwordField.setPromptText("Introduce password");
+
+        // Creăm un buton pentru a trimite datele introduse
+        Button loginButton = new Button("Login");
+        loginButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;"); // Setăm culoarea de fundal, culoarea textului, fontul textului, marginile și culoarea marginii butonului
+        loginButton.setOnAction(event -> {
+            String email = emailField.getText();
+            String password = passwordField.getText();
+            // Aici poți adăuga codul pentru verificarea emailului și parolei
+            // De exemplu, poți folosi aceste date pentru a verifica în lista de utilizatori din aplicația ta
+            System.out.println("Email: " + email);
+            System.out.println("Password: " + password);
             boolean foundUser = false;
-
-                while(foundUser==false) {
-                    System.out.print("Introduce email: ");
-                    String inputEmail = scanner.nextLine();
-                    System.out.print("Introduce password: ");
-                    String inputPassword = scanner.nextLine();
-
-                    for (AppUser user : users) {
-                        if (user.getEmail().equals(inputEmail) && user.getPassword().equals(inputPassword)) {
-                            foundUser = true;
-                            appConnectedUser = user;
-                            break; // Ieșiți din buclă când găsiți o potrivire
-                        }
-                    }
-                    if(foundUser){
-                        System.out.println("You are now connected in the catalogue");
-                        break;
-                    }
-                    }
-
-            if(foundUser) {
-                if(appConnectedUser.getRole().equals("teacher")) {
-                   int subjectId = 0;
-
-                    int value = -1;
-                    while(value!=0){
-                        System.out.println("The cases are:");
-                        System.out.println("0. Exit");
-                        System.out.println("1. View the students with their ids");
-                        System.out.println("2. View student names, ids, and grades");
-                        System.out.println("3. Add grade to student");
-                        System.out.println("4. Average grade per subject and per student");
-                        System.out.println("5. Delete grade");
-                        System.out.println("6. Sort students alphabetically ");
-                        System.out.println("7. Sort grades after date");
-
-                        System.out.print("Introduce value: ");
-                        do{
-                            if (scanner.hasNextInt()) {
-                                value = scanner.nextInt();
-                                scanner.nextLine();
-                            } else {
-                                System.out.println("Invalid input. Please enter a valid value.");
-                                scanner.nextLine(); // Consumăm newline-ul rămas în buffer
-                                value = -1; // Setăm name ca null pentru a forța continuarea buclei
-                            }
-                        } while (value==-1);
-
-                    switch(value){
-                        case 0:
-                            System.out.println("The exit was successful");
-                            break;
-                        case 1:
-                           mainInstance.showStudents(users);
-                            break;
-                        case 2:
-                            mainInstance.showStudentsWithGrades(users,subjects,grades);
-                            break;
-                        case 3:
-                            mainInstance.addGrade(users,subjects,grades,scanner,appConnectedUser);
-                            break;
-                        case 4:
-                            mainInstance.averageGrade(subjects,grades,scanner,appConnectedUser,mainInstance);
-                            break;
-                        case 5:
-                            mainInstance.deleteGrade(subjects,grades,scanner,appConnectedUser);
-                            break;
-                        case 6:
-                            mainInstance.sortStudentsBySurnames(users);
-                            break;
-                        case 7:
-                          mainInstance.sortGrades(users,subjects,grades);
-                            break;
-                        default:
-                            System.out.println("This is not a valid value");
-                            break;
-                    }}
+            AppUser appConnectedUser = null;
+            for (AppUser user : users) {
+                if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
+                    foundUser = true;
+                    appConnectedUser = user;
+                    break; // Ieșiți din buclă când găsiți o potrivire
                 }
-                else{
-                    int value=-1;
-                    int studentId = appConnectedUser.getId();
-
-                    while(value!=0){
-                        System.out.println("0. Exit 1. Show notes");
-                        System.out.println("Introduce value: ");
-
-                        do{
-                            if (scanner.hasNextInt()) {
-                                value = scanner.nextInt();
-                                scanner.nextLine();
-                            } else {
-                                System.out.println("Invalid input. Please enter a valid value.");
-                                scanner.nextLine(); // Consumăm newline-ul rămas în buffer
-                                value = 0; // Setăm name ca null pentru a forța continuarea buclei
-                            }
-                        } while (value == 0);
-                        switch (value){
-                        case 0:
-                            break;
-                            case 1:
-                   mainInstance.showStudentGrades(users,subjects,grades,studentId);
-                    break;
-
-                    }
+            }
+            if (foundUser) {
+                System.out.println("You are now connected in the catalogue");
+                if (appConnectedUser.getRole().equals("teacher")) {
+                    loginStage.close();
+                    showTeacherWindow();
+                } else {
+                    loginStage.close();
+                    showStudentWindow();
                 }
+            } else {
+                errorLabel.setText("Email or password is incorrect");
+            }
 
-            }
-            scanner.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        });
+
+        // Creăm un layout StackPane și adăugăm elementele în mijloc
+        VBox root = new VBox(10);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(20));
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(216, 228, 188), CornerRadii.EMPTY, Insets.EMPTY)));
+        root.getChildren().addAll(
+                new Label("Email:"),
+                emailField,
+                new Label("Password:"),
+                passwordField,
+                loginButton,
+                errorLabel
+        );
+
+        // Creăm scena și o atașăm la fereastra principală
+        Scene loginScene = new Scene(root, 300, 200);
+        loginStage.setScene(loginScene);
+        loginStage.setTitle("Login");
+        loginStage.show();
+    }
+
+        // Funcția pentru afișarea ferestrei pentru profesor
+        private void showTeacherWindow() {
+            Stage teacherStage = new Stage();
+            teacherStage.setTitle("Teacher Interface");
+
+            VBox root = new VBox(10);
+            root.setAlignment(Pos.CENTER);
+            root.setPadding(new Insets(20));
+            root.setBackground(new Background(new BackgroundFill(Color.rgb(216, 228, 188), CornerRadii.EMPTY, Insets.EMPTY)));
+
+            Button showStudentsButton = new Button("Show students");
+            showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
+            showStudentsButton.setOnAction(event -> {
+                TextArea studentTextArea = createStudentTextArea();
+                root.getChildren().add(studentTextArea); // Add the TextArea to the root VBox
+            });
+
+            root.getChildren().add(showStudentsButton); // Add the button to the root VBox
+
+            Scene teacherScene = new Scene(root, 300, 200);
+            teacherStage.setScene(teacherScene);
+            teacherStage.setTitle("Show students");
+            teacherStage.show();
         }
 
 
+        // Funcția pentru afișarea ferestrei pentru elev
+        private void showStudentWindow () {
+        Stage studentStage = new Stage();
+
+        studentStage.setTitle("Student Interface");
+
+
+        studentStage.show();
     }
+
+    private TextArea createStudentTextArea() {
+        TextArea studentTextArea = new TextArea();
+        studentTextArea.setEditable(false);
+        studentTextArea.setPrefSize(300, 200);
+
+        // Populate student information in the TextArea
+        StringBuilder studentInfo = new StringBuilder();
+        for (AppUser user : users) {
+            if (user.getRole().equals("student")) {
+                studentInfo.append("ID: ").append(user.getId()).append(", Name: ").append(user.getFirstName()).append(" ").append(user.getLastName()).append("\n");
+            }
+        }
+        studentTextArea.setText(studentInfo.toString());
+
+        return studentTextArea;
+    }
+
+
+//    public static void main(String[] args) {
+//        try {
+//            List<AppUser> users = AppUser.loadUsers();
+//            List<Subject> subjects = Subject.loadUsers();
+//            List<Grade> grades = Grade.loadGrades();
+//
+//            Main mainInstance = new Main();
+//
+//            AppUser appConnectedUser=null;
+//
+//            Scanner scanner = new Scanner(System.in);
+//
+//            boolean foundUser = false;
+//
+//                while(foundUser==false) {
+//                    System.out.print("Introduce email: ");
+//                    String inputEmail = scanner.nextLine();
+//                    System.out.print("Introduce password: ");
+//                    String inputPassword = scanner.nextLine();
+//
+//                    for (AppUser user : users) {
+//                        if (user.getEmail().equals(inputEmail) && user.getPassword().equals(inputPassword)) {
+//                            foundUser = true;
+//                            appConnectedUser = user;
+//                            break; // Ieșiți din buclă când găsiți o potrivire
+//                        }
+//                    }
+//                    if(foundUser){
+//                        System.out.println("You are now connected in the catalogue");
+//                        break;
+//                    }
+//                    }
+//
+//            if(foundUser) {
+//                if(appConnectedUser.getRole().equals("teacher")) {
+//                   int subjectId = 0;
+//
+//                    int value = -1;
+//                    while(value!=0){
+//                        System.out.println("The cases are:");
+//                        System.out.println("0. Exit");
+//                        System.out.println("1. View the students with their ids");
+//                        System.out.println("2. View student names, ids, and grades");
+//                        System.out.println("3. Add grade to student");
+//                        System.out.println("4. Average grade per subject and per student");
+//                        System.out.println("5. Delete grade");
+//                        System.out.println("6. Sort students alphabetically ");
+//                        System.out.println("7. Sort grades after date");
+//
+//                        System.out.print("Introduce value: ");
+//                        do{
+//                            if (scanner.hasNextInt()) {
+//                                value = scanner.nextInt();
+//                                scanner.nextLine();
+//                            } else {
+//                                System.out.println("Invalid input. Please enter a valid value.");
+//                                scanner.nextLine(); // Consumăm newline-ul rămas în buffer
+//                                value = -1; // Setăm name ca null pentru a forța continuarea buclei
+//                            }
+//                        } while (value==-1);
+//
+//                    switch(value){
+//                        case 0:
+//                            System.out.println("The exit was successful");
+//                            break;
+//                        case 1:
+//                           mainInstance.showStudents(users);
+//                            break;
+//                        case 2:
+//                            mainInstance.showStudentsWithGrades(users,subjects,grades);
+//                            break;
+//                        case 3:
+//                            mainInstance.addGrade(users,subjects,grades,scanner,appConnectedUser);
+//                            break;
+//                        case 4:
+//                            mainInstance.averageGrade(subjects,grades,scanner,appConnectedUser,mainInstance);
+//                            break;
+//                        case 5:
+//                            mainInstance.deleteGrade(subjects,grades,scanner,appConnectedUser);
+//                            break;
+//                        case 6:
+//                            mainInstance.sortStudentsBySurnames(users);
+//                            break;
+//                        case 7:
+//                          mainInstance.sortGrades(users,subjects,grades);
+//                            break;
+//                        default:
+//                            System.out.println("This is not a valid value");
+//                            break;
+//                    }}
+//                }
+//                else{
+//                    int value=-1;
+//                    int studentId = appConnectedUser.getId();
+//
+//                    while(value!=0){
+//                        System.out.println("0. Exit 1. Show notes");
+//                        System.out.println("Introduce value: ");
+//
+//                        do{
+//                            if (scanner.hasNextInt()) {
+//                                value = scanner.nextInt();
+//                                scanner.nextLine();
+//                            } else {
+//                                System.out.println("Invalid input. Please enter a valid value.");
+//                                scanner.nextLine(); // Consumăm newline-ul rămas în buffer
+//                                value = 0; // Setăm name ca null pentru a forța continuarea buclei
+//                            }
+//                        } while (value == 0);
+//                        switch (value){
+//                        case 0:
+//                            break;
+//                            case 1:
+//                   mainInstance.showStudentGrades(users,subjects,grades,studentId);
+//                    break;
+//
+//                    }
+//                }
+//
+//            }
+//            scanner.close();
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
+        //   }
+
     private static AppUser findUserById(List<AppUser> users, int userId) {
         for (AppUser user : users) {
             if (user.getId() == userId) {
@@ -258,7 +416,7 @@ public void addGrade(List<AppUser>users,List<Subject>subjects,List<Grade>grades,
     AppUser student = findUserById(users, studentId);
     if (student != null && subject != null&&student.getRole().equals("student")&&appConnectedUser.getId() == subject.getAppId()) {
         Grade grade = new Grade();
-        System.out.println("Introduce grade: ");2344eeea
+        System.out.println("Introduce grade: ");
         int newGrade=-1;
         do{
         if (scanner.hasNextInt()) {
@@ -333,16 +491,6 @@ public void deleteGrade(List<Subject>subjects,List<Grade>grades,Scanner scanner,
     if (!deleted) {
         System.out.println("There is no grade with the id " + gradeToDelete);
     }
-}
-
-public void showStudents(List<AppUser>users){
-    for (AppUser user : users) {
-        if(user.getRole().equals("student")){
-            System.out.println("Student ID: " + user.getId());
-            System.out.println("First Name: " + user.getFirstName());
-            System.out.println("Last Name: " + user.getLastName());
-            System.out.println();
-        }}
 }
 
 public void averageGrade(List<Subject>subjects,List<Grade>grades,Scanner scanner,AppUser appConnectedUser,Main mainInstance){

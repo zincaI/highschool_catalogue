@@ -26,6 +26,11 @@
             <version>1.18.24</version>
             <scope>compile</scope>
         </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.openjfx</groupId>-->
+<!--                <artifactId>javafx-fxml</artifactId>-->
+<!--                <version>versiune_javafx</version>-->
+<!--            </dependency>-->
     </dependencies>
 
 </project>
