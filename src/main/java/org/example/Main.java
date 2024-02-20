@@ -112,29 +112,35 @@ public class Main extends Application {
     }
 
         // Funcția pentru afișarea ferestrei pentru profesor
-        private void showTeacherWindow() {
-            Stage teacherStage = new Stage();
-            teacherStage.setTitle("Teacher Interface");
+        private boolean studentsTextAreaAdded = false; // Flag to track whether the TextArea has been added
 
-            VBox root = new VBox(10);
-            root.setAlignment(Pos.CENTER);
-            root.setPadding(new Insets(20));
-            root.setBackground(new Background(new BackgroundFill(Color.rgb(216, 228, 188), CornerRadii.EMPTY, Insets.EMPTY)));
+    private void showTeacherWindow() {
+        Stage teacherStage = new Stage();
+        teacherStage.setTitle("Teacher Interface");
 
-            Button showStudentsButton = new Button("Show students");
-            showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
-            showStudentsButton.setOnAction(event -> {
+        VBox root = new VBox(10);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(20));
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(216, 228, 188), CornerRadii.EMPTY, Insets.EMPTY)));
+
+        Button showStudentsButton = new Button("Show students");
+        showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
+        showStudentsButton.setOnAction(event -> {
+            // Check if the TextArea has already been added
+            if (!studentsTextAreaAdded) {
                 TextArea studentTextArea = createStudentTextArea();
                 root.getChildren().add(studentTextArea); // Add the TextArea to the root VBox
-            });
+                studentsTextAreaAdded = true; // Update the flag
+            }
+        });
 
-            root.getChildren().add(showStudentsButton); // Add the button to the root VBox
+        root.getChildren().add(showStudentsButton); // Add the button to the root VBox
 
-            Scene teacherScene = new Scene(root, 300, 200);
-            teacherStage.setScene(teacherScene);
-            teacherStage.setTitle("Show students");
-            teacherStage.show();
-        }
+        Scene teacherScene = new Scene(root, 300, 200);
+        teacherStage.setScene(teacherScene);
+        teacherStage.setTitle("Show students");
+        teacherStage.show();
+    }
 
 
         // Funcția pentru afișarea ferestrei pentru elev
@@ -364,24 +370,24 @@ public void sortGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grade
     }
 }
 
-public void showStudentsWithGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grades){
-    for (Grade grade : grades) {
-        // Find the student associated with the grade
-        AppUser student = findUserById(users, grade.getAppId());
-        // Find the subject associated with the grade
-        Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
-
-        // Print student, grade, and subject information
-        if (student != null && subject != null) {
-            System.out.println("Student id: " + student.getId());
-            System.out.println("Student: " + student.getFirstName() + " " + student.getLastName());
-            System.out.println("Grade id: "+ grade.getGradeId());
-            System.out.println("Grade: " + grade.getValue());
-            System.out.println("Subject: " + subject.getName());
-            System.out.println();
-        }
-    }
-}
+//public void showStudentsWithGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grades){
+//    for (Grade grade : grades) {
+//        // Find the student associated with the grade
+//        AppUser student = findUserById(users, grade.getAppId());
+//        // Find the subject associated with the grade
+//        Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
+//
+//        // Print student, grade, and subject information
+//        if (student != null && subject != null) {
+//            System.out.println("Student id: " + student.getId());
+//            System.out.println("Student: " + student.getFirstName() + " " + student.getLastName());
+//            System.out.println("Grade id: "+ grade.getGradeId());
+//            System.out.println("Grade: " + grade.getValue());
+//            System.out.println("Subject: " + subject.getName());
+//            System.out.println();
+//        }
+//    }
+//}
 
 public void addGrade(List<AppUser>users,List<Subject>subjects,List<Grade>grades,Scanner scanner,AppUser appConnectedUser) throws IOException {
     System.out.println("Introduce student id: ");
