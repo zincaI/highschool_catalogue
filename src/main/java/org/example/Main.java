@@ -3,12 +3,8 @@ package org.example;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -113,37 +109,59 @@ public class Main extends Application {
 
         // Funcția pentru afișarea ferestrei pentru profesor
         private boolean studentsTextAreaAdded = false; // Flag to track whether the TextArea has been added
-
+    private boolean studentsWithGradesTextAreaAdded = false; // Flag to track whether the TextArea has been added
     private void showTeacherWindow() {
         Stage teacherStage = new Stage();
         teacherStage.setTitle("Teacher Interface");
+
+        // Creează un ScrollPane care va conține conținutul ferestrei
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true); // Asigură că ScrollPane se potrivește lățimii ferestrei
 
         VBox root = new VBox(10);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
         root.setBackground(new Background(new BackgroundFill(Color.rgb(216, 228, 188), CornerRadii.EMPTY, Insets.EMPTY)));
 
+        // Butonul pentru "Show students"
         Button showStudentsButton = new Button("Show students");
         showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsButton.setOnAction(event -> {
-            // Check if the TextArea has already been added
-            if (!studentsTextAreaAdded) {
-                TextArea studentTextArea = createStudentTextArea();
-                root.getChildren().add(studentTextArea); // Add the TextArea to the root VBox
-                studentsTextAreaAdded = true; // Update the flag
-            }
+            TextArea studentTextArea = createStudentTextArea();
+            VBox.setMargin(studentTextArea, new Insets(10, 0, 0, 0)); // Set margin to separate TextArea from the button
+            root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, studentTextArea); // Add the TextArea after the button
         });
 
-        root.getChildren().add(showStudentsButton); // Add the button to the root VBox
+        // Butonul pentru "Show students with grades"
+        Button showStudentsWithGradesButton = new Button("Show students with grades");
+        showStudentsWithGradesButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
+        showStudentsWithGradesButton.setOnAction(event -> {
+            TextArea studentWithGradesTextArea = createStudentWithGradesTextArea();
+            VBox.setMargin(studentWithGradesTextArea, new Insets(10, 0, 0, 0)); // Set margin to separate TextArea from the button
+            root.getChildren().add(root.getChildren().indexOf(showStudentsWithGradesButton) + 1, studentWithGradesTextArea); // Add the TextArea after the button
+        });
 
-        Scene teacherScene = new Scene(root, 300, 200);
+        // Adaugă butoanele în VBox-ul principal
+        root.getChildren().addAll(showStudentsButton, showStudentsWithGradesButton);
+
+        // Setează VBox-ul ca și conținut pentru ScrollPane
+        scrollPane.setContent(root);
+
+        Scene teacherScene = new Scene(scrollPane, 300, 200); // Setează ScrollPane ca și rădăcină a scenei
         teacherStage.setScene(teacherScene);
         teacherStage.setTitle("Show students");
         teacherStage.show();
     }
 
 
-        // Funcția pentru afișarea ferestrei pentru elev
+
+
+
+
+
+
+
+    // Funcția pentru afișarea ferestrei pentru elev
         private void showStudentWindow () {
         Stage studentStage = new Stage();
 
@@ -165,6 +183,36 @@ public class Main extends Application {
                 studentInfo.append("ID: ").append(user.getId()).append(", Name: ").append(user.getFirstName()).append(" ").append(user.getLastName()).append("\n");
             }
         }
+        studentTextArea.setText(studentInfo.toString());
+
+        return studentTextArea;
+    }
+
+    public TextArea createStudentWithGradesTextArea(){
+        TextArea studentTextArea = new TextArea();
+        studentTextArea.setEditable(false);
+        studentTextArea.setPrefSize(300, 200);
+        StringBuilder studentInfo = new StringBuilder();
+
+        for(AppUser student:users){
+            if(student.getRole().equals("student")){
+            for (Grade grade : grades) {
+            // Verificăm dacă nota este asociată elevului dorit
+            if (grade.getAppId() == student.getId()) {
+                // Găsim numele elevului
+                //AppUser student = findUserById(users, student.getId());
+
+                // Găsim numele materiei
+                Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
+
+               // assert student != null;
+                assert subject != null;
+                studentInfo.append("Student's id: ").append(student.getId()).append(", Name: ").append(student.getFirstName()).append(student.getLastName()).append("Subject: ").append(subject.getName()).append("Grade's id:").append(grade.getGradeId()).append("Grade's value: ").append(grade.getValue()).append("\n");
+            }
+            }
+            }
+        }
+
         studentTextArea.setText(studentInfo.toString());
 
         return studentTextArea;
@@ -537,24 +585,24 @@ public void sortStudentsBySurnames(List<AppUser>users){
     }
 }
 
-public void showStudentGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grades,int studentId){
-    // Afisăm notele elevului pentru fiecare disciplină și data asociată
-    System.out.println("Grades: ");
-    for (Grade grade : grades) {
-        // Verificăm dacă nota este asociată elevului dorit
-        if (grade.getAppId() == studentId) {
-            // Găsim numele elevului
-            AppUser student = findUserById(users, studentId);
-
-            // Găsim numele materiei
-            Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
-
-            // Afișăm nota, data și disciplina asociate
-            System.out.println("Date: " + grade.getDate() + ", Subject: " + (subject != null ? subject.getName() : "N/A") +
-                    ", Grade: " + grade.getValue());
-        }
-    }
-}
+//public void showStudentGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grades,int studentId){
+//    // Afisăm notele elevului pentru fiecare disciplină și data asociată
+//    System.out.println("Grades: ");
+//    for (Grade grade : grades) {
+//        // Verificăm dacă nota este asociată elevului dorit
+//        if (grade.getAppId() == studentId) {
+//            // Găsim numele elevului
+//            AppUser student = findUserById(users, studentId);
+//
+//            // Găsim numele materiei
+//            Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
+//
+//            // Afișăm nota, data și disciplina asociate
+//            System.out.println("Date: " + grade.getDate() + ", Subject: " + (subject != null ? subject.getName() : "N/A") +
+//                    ", Grade: " + grade.getValue());
+//        }
+//    }
+//}
 
 }
 
