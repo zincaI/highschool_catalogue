@@ -128,18 +128,26 @@ public class Main extends Application {
         showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsButton.setOnAction(event -> {
             TextArea studentTextArea = createStudentTextArea();
-            VBox.setMargin(studentTextArea, new Insets(10, 0, 0, 0)); // Set margin to separate TextArea from the button
-            root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, studentTextArea); // Add the TextArea after the button
-        });
+            VBox.setMargin(studentTextArea, new Insets(10, 0, 0, 0));
+                    if(studentsTextAreaAdded==false) {// Set margin to separate TextArea from the button
+                        studentsTextAreaAdded = true;// Set margin to separate TextArea from the button
+                        root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, studentTextArea); // Add the TextArea after the button
+                    }
+                    });
 
         // Butonul pentru "Show students with grades"
         Button showStudentsWithGradesButton = new Button("Show students with grades");
         showStudentsWithGradesButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsWithGradesButton.setOnAction(event -> {
             TextArea studentWithGradesTextArea = createStudentWithGradesTextArea();
-            VBox.setMargin(studentWithGradesTextArea, new Insets(10, 0, 0, 0)); // Set margin to separate TextArea from the button
-            root.getChildren().add(root.getChildren().indexOf(showStudentsWithGradesButton) + 1, studentWithGradesTextArea); // Add the TextArea after the button
-        });
+            VBox.setMargin(studentWithGradesTextArea, new Insets(10, 0, 0, 0));
+            if(studentsWithGradesTextAreaAdded==false) {// Set margin to separate TextArea from the button
+                studentsWithGradesTextAreaAdded=true;
+                root.getChildren().add(root.getChildren().indexOf(showStudentsWithGradesButton) + 1, studentWithGradesTextArea); // Add the TextArea after the button
+            }
+            });
+
+
 
         // Adaugă butoanele în VBox-ul principal
         root.getChildren().addAll(showStudentsButton, showStudentsWithGradesButton);
@@ -152,14 +160,6 @@ public class Main extends Application {
         teacherStage.setTitle("Show students");
         teacherStage.show();
     }
-
-
-
-
-
-
-
-
 
     // Funcția pentru afișarea ferestrei pentru elev
         private void showStudentWindow () {
@@ -584,25 +584,6 @@ public void sortStudentsBySurnames(List<AppUser>users){
         System.out.println("ID: " + s.getId() + ", Surname: " + s.getLastName() + ", Firstname: " + s.getFirstName());
     }
 }
-
-//public void showStudentGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grades,int studentId){
-//    // Afisăm notele elevului pentru fiecare disciplină și data asociată
-//    System.out.println("Grades: ");
-//    for (Grade grade : grades) {
-//        // Verificăm dacă nota este asociată elevului dorit
-//        if (grade.getAppId() == studentId) {
-//            // Găsim numele elevului
-//            AppUser student = findUserById(users, studentId);
-//
-//            // Găsim numele materiei
-//            Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
-//
-//            // Afișăm nota, data și disciplina asociate
-//            System.out.println("Date: " + grade.getDate() + ", Subject: " + (subject != null ? subject.getName() : "N/A") +
-//                    ", Grade: " + grade.getValue());
-//        }
-//    }
-//}
 
 }
 
