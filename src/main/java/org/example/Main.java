@@ -116,7 +116,7 @@ public class Main extends Application {
 
         // Creează un ScrollPane care va conține conținutul ferestrei
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true); // Asigură că ScrollPane se potrivește lățimii ferestrei
+        scrollPane.setFitToWidth(true);
 
         VBox root = new VBox(10);
         root.setAlignment(Pos.CENTER);
@@ -124,6 +124,10 @@ public class Main extends Application {
         root.setBackground(new Background(new BackgroundFill(Color.rgb(216, 228, 188), CornerRadii.EMPTY, Insets.EMPTY)));
 
         // Butonul pentru "Show students"
+        Button exitButton = new Button("Exit");
+        exitButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;"); // Setăm culoarea de fundal, culoarea textului, fontul textului, marginile și culoarea marginii butonului
+        exitButton.setOnAction(event -> teacherStage.close());
+
         Button showStudentsButton = new Button("Show students");
         showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsButton.setOnAction(event -> {
@@ -150,24 +154,38 @@ public class Main extends Application {
 
 
         // Adaugă butoanele în VBox-ul principal
-        root.getChildren().addAll(showStudentsButton, showStudentsWithGradesButton);
+        root.getChildren().addAll(exitButton,showStudentsButton, showStudentsWithGradesButton);
 
         // Setează VBox-ul ca și conținut pentru ScrollPane
         scrollPane.setContent(root);
 
         Scene teacherScene = new Scene(scrollPane, 300, 200); // Setează ScrollPane ca și rădăcină a scenei
+       // teacherScene.setFill(Color.rgb(216, 228, 188));
         teacherStage.setScene(teacherScene);
         teacherStage.setTitle("Show students");
         teacherStage.show();
     }
 
     // Funcția pentru afișarea ferestrei pentru elev
-        private void showStudentWindow () {
+    private void showStudentWindow() {
         Stage studentStage = new Stage();
-
         studentStage.setTitle("Student Interface");
 
+        // Create a VBox to contain the window content
+        VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(216, 228, 188), CornerRadii.EMPTY, Insets.EMPTY)));
 
+        // Create a Button to exit the window
+        Button exitButton = new Button("Exit");
+        exitButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;"); // Setăm culoarea de fundal, culoarea textului, fontul textului, marginile și culoarea marginii butonului
+        exitButton.setOnAction(event -> studentStage.close()); // Set action to close the window
+
+        // Add the exit button to the VBox layout
+        root.getChildren().add(exitButton);
+
+        Scene studentScene = new Scene(root, 300, 200);
+        studentStage.setScene(studentScene);
         studentStage.show();
     }
 
