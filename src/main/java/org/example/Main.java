@@ -27,7 +27,6 @@ public class Main extends Application {
     }
 
     public static void main (String[]args){
-        // Launch the JavaFX application
         launch(args);
     }
 
@@ -132,7 +131,9 @@ public class Main extends Application {
         Button showStudentsButton = new Button("Show students");
         showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsButton.setOnAction(event -> {
-            TextArea studentTextArea = createStudentTextArea();
+            //TextArea studentTextArea = createStudentTextArea(users);
+            TextArea studentTextArea = TeacherManager.createStudentTextArea(users);
+
             VBox.setMargin(studentTextArea, new Insets(10, 0, 0, 0));
                     if(studentsTextAreaAdded==false) {// Set margin to separate TextArea from the button
                         studentsTextAreaAdded = true;// Set margin to separate TextArea from the button
@@ -144,7 +145,7 @@ public class Main extends Application {
         Button showStudentsWithGradesButton = new Button("Show students with grades");
         showStudentsWithGradesButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsWithGradesButton.setOnAction(event -> {
-            TextArea studentWithGradesTextArea = createStudentWithGradesTextArea();
+            TextArea studentWithGradesTextArea = TeacherManager.createStudentWithGradesTextArea(users,grades,subjects);
             VBox.setMargin(studentWithGradesTextArea, new Insets(10, 0, 0, 0));
             if(studentsWithGradesTextAreaAdded==false) {// Set margin to separate TextArea from the button
                 studentsWithGradesTextAreaAdded=true;
@@ -202,6 +203,7 @@ public class Main extends Application {
         teacherStage.show();
     }
 
+
     // Funcția pentru afișarea ferestrei pentru elev
     private void showStudentWindow(int studentId) {
         Stage studentStage = new Stage();
@@ -217,19 +219,7 @@ public class Main extends Application {
         exitButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;"); // Setăm culoarea de fundal, culoarea textului, fontul textului, marginile și culoarea marginii butonului
         exitButton.setOnAction(event -> studentStage.close()); // Set action to close the window
 
-//        TextArea gradesTextArea = new TextArea();
-//        gradesTextArea.setEditable(false); // Make it read-only
-//        gradesTextArea.setPrefSize(100, 100); // Set preferred size
-//        VBox.setMargin(gradesTextArea, new Insets(10, 10, 10, 10));
-
-
-        Button showGradesButton = new Button("Show Grades");
-        showGradesButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;"); // Setăm culoarea de fundal, culoarea textului, fontul textului, marginile și culoarea marginii butonului
-        showGradesButton.setOnAction(event -> {
-            TextArea gradesTextArea = StudentManager.createStudentTextArea(studentId,grades,subjects);
-            root.getChildren().remove(showGradesButton); // Remove the button after it's clicked
-            root.getChildren().addAll(gradesTextArea, exitButton); // Add the text area and exit button
-        });
+        Button showGradesButton = getButton(studentId, root, exitButton);
 
         // Add components to the VBox layout
         root.getChildren().addAll(showGradesButton);
@@ -239,71 +229,16 @@ public class Main extends Application {
         studentStage.show();
     }
 
-    public TextArea createStudentTextArea() {
-        TextArea studentTextArea = new TextArea();
-        studentTextArea.setEditable(false);
-        studentTextArea.setPrefSize(300, 200);
-
-        // Populate student information in the TextArea
-        StringBuilder studentInfo = new StringBuilder();
-        for (AppUser user : users) {
-            if (user.getRole().equals("student")) {
-                studentInfo.append("ID: ").append(user.getId()).append(", Name: ").append(user.getFirstName()).append(" ").append(user.getLastName()).append("\n");
-            }
-        }
-        studentTextArea.setText(studentInfo.toString());
-
-        return studentTextArea;
+    private Button getButton(int studentId, VBox root, Button exitButton) {
+        Button showGradesButton = new Button("Show Grades");
+        showGradesButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;"); // Setăm culoarea de fundal, culoarea textului, fontul textului, marginile și culoarea marginii butonului
+        showGradesButton.setOnAction(event -> {
+            TextArea gradesTextArea = StudentManager.createStudentTextArea(studentId,grades,subjects);
+            root.getChildren().remove(showGradesButton); // Remove the button after it's clicked
+            root.getChildren().addAll(gradesTextArea, exitButton); // Add the text area and exit button
+        });
+        return showGradesButton;
     }
-
-    public TextArea createStudentWithGradesTextArea(){
-        TextArea studentTextArea = new TextArea();
-        studentTextArea.setEditable(false);
-        studentTextArea.setPrefSize(300, 200);
-        StringBuilder studentInfo = new StringBuilder();
-
-        for(AppUser student:users){
-            if(student.getRole().equals("student")){
-            for (Grade grade : grades) {
-            // Verificăm dacă nota este asociată elevului dorit
-            if (grade.getAppId() == student.getId()) {
-                // Găsim numele elevului
-                //AppUser student = findUserById(users, student.getId());
-
-                // Găsim numele materiei
-                Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
-
-               // assert student != null;
-                assert subject != null;
-                studentInfo.append("Student's id: ").append(student.getId()).append(", Name: ").append(student.getFirstName()).append(student.getLastName()).append("Subject: ").append(subject.getName()).append("Grade's id:").append(grade.getGradeId()).append("Grade's value: ").append(grade.getValue()).append("\n");
-            }
-            }
-            }
-        }
-
-        studentTextArea.setText(studentInfo.toString());
-
-        return studentTextArea;
-    }
-
-//    private TextArea createStudentTextArea(int studentId) {
-//        TextArea studentTextArea = new TextArea();
-//        studentTextArea.setEditable(false);
-//        studentTextArea.setPrefSize(300, 200);
-//
-//        // Populate student information in the TextArea
-//        StringBuilder studentInfo = new StringBuilder();
-//                for (Grade grade : grades) {
-//            if (grade.getAppId() == studentId) {
-//                Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
-//                studentInfo.append("Date: " + grade.getDate() + ", Subject: " + (subject != null ? subject.getName() : "N/A") +
-//                        ", Grade: " + grade.getValue() + "\n");
-//            }
-//        }
-//        studentTextArea.setText(studentInfo.toString());
-//
-//        return studentTextArea;
-//    }
 
     public void addGrade(List<AppUser> users, List<Subject> subjects, List<Grade> grades, int studentId, int subjectId, int newGrade, AppUser appConnectedUser) throws IOException {
         Subject subject = findSubjectByIdSubject(subjects, subjectId);
