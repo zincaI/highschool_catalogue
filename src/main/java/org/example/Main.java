@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -191,6 +192,16 @@ public class Main extends Application {
                         int grade = Integer.parseInt(gradeText);
                         int subjectId=Integer.parseInt(subjectIdText);
                         // Call a method to add the grade to the list
+
+//                        appConnectedUser.getId() == subject.getAppId()
+                        Subject subj = null;
+                        for(Subject subject:subjects){
+                            if(subject.getIdSubject()==subjectId)
+                                subj=subject;
+                        }
+                        if(grade<=10&&grade>=0&&
+                                Objects.requireNonNull(subj).getAppId()==appConnectedUser.getId()&&
+                                Objects.equals(appConnectedUser.getRole(), "student")){
                         try {
                             addGrade(users,
                                     subjects,
@@ -206,6 +217,22 @@ public class Main extends Application {
                         } catch (IOException ex) {
                             errorLabel.setText("Please fill all text box and make sure the ids are valid.");
                             throw new RuntimeException(ex);
+                        }
+
+                        }
+                        else{
+                            if(! Objects.equals(appConnectedUser.getRole(), "student")){
+                                errorLabel.setText("The student id is not valid.");
+                            }
+                           else if(grade>10||grade<0){
+                                errorLabel.setText("Invalid grade. Please add a grade between 0 and 10.");
+                            }
+                            else if(Objects.requireNonNull(subj).getAppId()!=appConnectedUser.getId()){
+                                errorLabel.setText("You can't modify this subject's grade as you are not it's teacher.");
+
+
+                            }
+
                         }
                     } else {
                         // Display an error message if any field is empty
