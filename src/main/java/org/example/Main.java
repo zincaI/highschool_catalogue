@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 
 public class Main extends Application {
 
-        private Stage loginStage;
-        List<AppUser> users = AppUser.loadUsers();
-        List<Subject> subjects = Subject.loadUsers();
-        List<Grade> grades = Grade.loadGrades();
+    private Stage loginStage;
+    List<AppUser> users = AppUser.loadUsers();
+    List<Subject> subjects = Subject.loadUsers();
+    List<Grade> grades = Grade.loadGrades();
 
     public Main() throws IOException {
     }
@@ -30,15 +30,15 @@ public class Main extends Application {
         launch(args);
     }
 
-        @Override
-        public void start (Stage primaryStage) throws IOException {
+    @Override
+    public void start (Stage primaryStage) throws IOException {
 
         loginStage = new Stage();
 
         // Setăm culoarea textului la roșu pentru a atrage atenția
 
         Label errorLabel = new Label();
-        errorLabel.setTextFill(Color.RED);
+        errorLabel.setTextFill(Color.BLACK);
 
         // Creăm casetele de introducere pentru email și parolă
         TextField emailField = new TextField();
@@ -106,11 +106,19 @@ public class Main extends Application {
         loginStage.show();
     }
 
-        // Funcția pentru afișarea ferestrei pentru profesor
-        private boolean studentsTextAreaAdded = false; // Flag to track whether the TextArea has been added
+    // Funcția pentru afișarea ferestrei pentru profesor
+    private boolean studentsTextAreaAdded = false; // Flag to track whether the TextArea has been added
     private boolean studentsWithGradesTextAreaAdded = false; // Flag to track whether the TextArea has been added
+    private boolean textAreas = false; // Flag to track whether the TextArea has been added
+
     private void showTeacherWindow(AppUser appConnectedUser) {
         Stage teacherStage = new Stage();
+
+        Label errorLabel = new Label();
+        errorLabel.setTextFill(Color.BLACK);
+
+        final TextArea[] studentWithGradesTextArea = {TeacherManager.createStudentWithGradesTextArea(users, grades, subjects)};
+
         teacherStage.setTitle("Teacher Interface");
 
         // Creează un ScrollPane care va conține conținutul ferestrei
@@ -135,60 +143,86 @@ public class Main extends Application {
             TextArea studentTextArea = TeacherManager.createStudentTextArea(users);
 
             VBox.setMargin(studentTextArea, new Insets(10, 0, 0, 0));
-                    if(studentsTextAreaAdded==false) {// Set margin to separate TextArea from the button
-                        studentsTextAreaAdded = true;// Set margin to separate TextArea from the button
-                        root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, studentTextArea); // Add the TextArea after the button
-                    }
-                    });
+            if(!studentsTextAreaAdded) {// Set margin to separate TextArea from the button
+                studentsTextAreaAdded = true;// Set margin to separate TextArea from the button
+                root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, studentTextArea); // Add the TextArea after the button
+            }
+        });
 
         // Butonul pentru "Show students with grades"
         Button showStudentsWithGradesButton = new Button("Show students with grades");
         showStudentsWithGradesButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsWithGradesButton.setOnAction(event -> {
-            TextArea studentWithGradesTextArea = TeacherManager.createStudentWithGradesTextArea(users,grades,subjects);
-            VBox.setMargin(studentWithGradesTextArea, new Insets(10, 0, 0, 0));
-            if(studentsWithGradesTextAreaAdded==false) {// Set margin to separate TextArea from the button
+//            TextArea studentWithGradesTextArea = TeacherManager.createStudentWithGradesTextArea(users,grades,subjects);
+            VBox.setMargin(studentWithGradesTextArea[0], new Insets(10, 0, 0, 0));
+            if(!studentsWithGradesTextAreaAdded) {// Set margin to separate TextArea from the button
                 studentsWithGradesTextAreaAdded=true;
-                root.getChildren().add(root.getChildren().indexOf(showStudentsWithGradesButton) + 1, studentWithGradesTextArea); // Add the TextArea after the button
+                root.getChildren().add(root.getChildren().indexOf(showStudentsWithGradesButton) + 1, studentWithGradesTextArea[0]); // Add the TextArea after the button
             }
-            });
+        });
         // TextFields pentru introducerea datelor
-        TextField studentIdField = new TextField();
-        studentIdField.setPromptText("Student ID");
 
-        TextField subjectIdField = new TextField();
-        subjectIdField.setPromptText("Subject ID");
 
-        TextField gradeField = new TextField();
-        gradeField.setPromptText("Grade");
-
-// Butonul pentru adăugarea notei
+        // Button for adding a grade
         Button addButton = new Button("Add Grade");
         addButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         addButton.setOnAction(event -> {
-            String studentIdText = studentIdField.getText();
-            String subjectIdText = subjectIdField.getText();
-            String gradeText = gradeField.getText();
+            if (!textAreas) {
+                TextField studentIdField = new TextField();
+                studentIdField.setPromptText("Student ID");
 
-            if (studentIdText.isEmpty() || subjectIdText.isEmpty() || gradeText.isEmpty()) {
-                // Display an error message or handle the empty input case
-                return;
-            }
+                TextField gradeField = new TextField();
+                gradeField.setPromptText("Grade");
 
-            try {
-                int studentId = Integer.parseInt(studentIdText);
-                int subjectId = Integer.parseInt(subjectIdText);
-                int newGrade = Integer.parseInt(gradeText);
-                addGrade(users, subjects, grades, studentId, subjectId, newGrade, appConnectedUser);
-            } catch (NumberFormatException e) {
-                // Handle the case where the input is not a valid integer
-                e.printStackTrace();
-                // Display an error message or handle the invalid input case
-            } catch (IOException e) {
-                e.printStackTrace();
-                // Handle the case where an IO exception occurs
+                TextField subjectIdField = new TextField();
+                subjectIdField.setPromptText("Subject id");
+
+                Button doneButton = new Button("Done");
+                doneButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
+                doneButton.setOnAction(e -> {
+                    // Retrieve the student ID and grade from text fields
+                    String studentIdText = studentIdField.getText();
+                    String gradeText = gradeField.getText();
+                    String subjectIdText = subjectIdField.getText();
+
+                    // Perform validation and add the grade to the list
+                    if (!studentIdText.isEmpty() && !gradeText.isEmpty()) {
+                        int studentId = Integer.parseInt(studentIdText);
+                        int grade = Integer.parseInt(gradeText);
+                        int subjectId=Integer.parseInt(subjectIdText);
+                        // Call a method to add the grade to the list
+                        try {
+                            addGrade(users,
+                                    subjects,
+                                    grades,
+                                    studentId,
+                                    subjectId,
+                                    grade,
+                                    appConnectedUser);
+
+                            root.getChildren().remove(studentWithGradesTextArea[0]); // Remove the existing text area
+                            studentWithGradesTextArea[0] = TeacherManager.createStudentWithGradesTextArea(users, grades, subjects); // Recreate the text area with updated data
+                            root.getChildren().add(root.getChildren().indexOf(showStudentsWithGradesButton) + 1, studentWithGradesTextArea[0]); // Add the updated text area after the button
+                        } catch (IOException ex) {
+                            errorLabel.setText("Please fill all text box and make sure the ids are valid.");
+                            throw new RuntimeException(ex);
+                        }
+                    } else {
+                        // Display an error message if any field is empty
+                        //("Please fill all text box and make sure the ids are valid.");
+                        errorLabel.setText("Please fill all text box and make sure the ids are valid.");
+
+                    }
+                });
+
+
+
+                // Add the text fields and "Done" button to the layout
+                root.getChildren().addAll(studentIdField, gradeField,subjectIdField, doneButton,errorLabel);
+                textAreas = true;
             }
         });
+
 
         // Adaugă butoanele în VBox-ul principal
         root.getChildren().addAll(exitButton,showStudentsButton, showStudentsWithGradesButton,addButton);
@@ -197,11 +231,12 @@ public class Main extends Application {
         scrollPane.setContent(root);
 
         Scene teacherScene = new Scene(scrollPane, 300, 200); // Setează ScrollPane ca și rădăcină a scenei
-       // teacherScene.setFill(Color.rgb(216, 228, 188));
+        // teacherScene.setFill(Color.rgb(216, 228, 188));
         teacherStage.setScene(teacherScene);
         teacherStage.setTitle("Show students");
         teacherStage.show();
     }
+
 
 
     // Funcția pentru afișarea ferestrei pentru elev
@@ -240,7 +275,14 @@ public class Main extends Application {
         return showGradesButton;
     }
 
-    public void addGrade(List<AppUser> users, List<Subject> subjects, List<Grade> grades, int studentId, int subjectId, int newGrade, AppUser appConnectedUser) throws IOException {
+    public void addGrade(List<AppUser> users,
+                         List<Subject> subjects,
+                         List<Grade> grades,
+                         int studentId,
+                         int subjectId,
+                         int newGrade,
+                         AppUser appConnectedUser)
+            throws IOException {
         Subject subject = findSubjectByIdSubject(subjects, subjectId);
         AppUser student = findUserById(users, studentId);
 
@@ -318,108 +360,108 @@ public class Main extends Application {
         }
     }
 
-public void sortGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grades){
-    grades.sort(Comparator.comparing(Grade::getDate)
-            .thenComparing(grade -> {
-                AppUser st = findUserById(users, grade.getAppId());
-                return st != null ? st.getLastName() : "";
-            })
-            .thenComparing(grade -> {
-                Subject s = findSubjectByIdSubject(subjects, grade.getSubjectId());
-                return s != null ? s.getName() : "";
-            }));
+    public void sortGrades(List<AppUser>users,List<Subject>subjects,List<Grade>grades){
+        grades.sort(Comparator.comparing(Grade::getDate)
+                .thenComparing(grade -> {
+                    AppUser st = findUserById(users, grade.getAppId());
+                    return st != null ? st.getLastName() : "";
+                })
+                .thenComparing(grade -> {
+                    Subject s = findSubjectByIdSubject(subjects, grade.getSubjectId());
+                    return s != null ? s.getName() : "";
+                }));
 
-    // Afișăm lista de note sortată după data calendaristică, numele studentului și numele materiei
-    System.out.println("Grade sorted by date:");
-    for (Grade grade : grades) {
-        AppUser st = findUserById(users, grade.getAppId());
-        Subject s = findSubjectByIdSubject(subjects, grade.getSubjectId());
-        System.out.println("Date: " + grade.getDate() + ", Student name: " + (st != null ? st.getLastName() : "") + (st != null ? st.getFirstName() : "")
-                + ", Subject: " + (s != null ? s.getName() : "") + ", Grade: " + grade.getValue());
-    }
-}
-//
-public void deleteGrade(List<Subject>subjects,List<Grade>grades,Scanner scanner,AppUser appConnectedUser){
-    // Introdu ID-ul notei pe care dorești să o ștergi
-    System.out.println("Introduce the grade's id: ");
-    int gradeToDelete;
-    do{
-        if (scanner.hasNextInt()) {
-            gradeToDelete = scanner.nextInt();
-            scanner.nextLine();
-        } else {
-            System.out.println("Invalid input. Please enter a valid grade's id.");
-            scanner.nextLine(); // Consumăm newline-ul rămas în buffer
-            gradeToDelete = 0; // Setăm name ca null pentru a forța continuarea buclei
+        // Afișăm lista de note sortată după data calendaristică, numele studentului și numele materiei
+        System.out.println("Grade sorted by date:");
+        for (Grade grade : grades) {
+            AppUser st = findUserById(users, grade.getAppId());
+            Subject s = findSubjectByIdSubject(subjects, grade.getSubjectId());
+            System.out.println("Date: " + grade.getDate() + ", Student name: " + (st != null ? st.getLastName() : "") + (st != null ? st.getFirstName() : "")
+                    + ", Subject: " + (s != null ? s.getName() : "") + ", Grade: " + grade.getValue());
         }
-    } while (gradeToDelete == 0);
-
-    boolean deleted = false; // Flag pentru a verifica daca nota a fost stearsa
-
-
-    // Itereaza prin lista de note
-    for (Grade grade : grades) {
-        // Verifica daca ID-ul notei este egal cu ID-ul notei pe care dorim sa o stergem
-        if (grade.getGradeId() == gradeToDelete) {
-            // Sterge nota din lista
-            if(grade.getSubjectId()==findSubjectByUserId(subjects,appConnectedUser.getId()).getIdSubject()) {
-                grades.remove(grade);
-                deleted = true;
+    }
+    //
+    public void deleteGrade(List<Subject>subjects,List<Grade>grades,Scanner scanner,AppUser appConnectedUser){
+        // Introdu ID-ul notei pe care dorești să o ștergi
+        System.out.println("Introduce the grade's id: ");
+        int gradeToDelete;
+        do{
+            if (scanner.hasNextInt()) {
+                gradeToDelete = scanner.nextInt();
+                scanner.nextLine();
+            } else {
+                System.out.println("Invalid input. Please enter a valid grade's id.");
+                scanner.nextLine(); // Consumăm newline-ul rămas în buffer
+                gradeToDelete = 0; // Setăm name ca null pentru a forța continuarea buclei
             }
-            else {
-                System.out.println("The teacher can't alter this grade");
-                break;
+        } while (gradeToDelete == 0);
+
+        boolean deleted = false; // Flag pentru a verifica daca nota a fost stearsa
+
+
+        // Itereaza prin lista de note
+        for (Grade grade : grades) {
+            // Verifica daca ID-ul notei este egal cu ID-ul notei pe care dorim sa o stergem
+            if (grade.getGradeId() == gradeToDelete) {
+                // Sterge nota din lista
+                if(grade.getSubjectId()==findSubjectByUserId(subjects,appConnectedUser.getId()).getIdSubject()) {
+                    grades.remove(grade);
+                    deleted = true;
+                }
+                else {
+                    System.out.println("The teacher can't alter this grade");
+                    break;
+                }
+
+                // Afiseaza un mesaj de confirmare
+                System.out.println("The grade was deleted succesfully.");
+                break; // Iesi din bucla dupa ce ai sters prima nota cu ID-ul dat
             }
+        }
 
-            // Afiseaza un mesaj de confirmare
-            System.out.println("The grade was deleted succesfully.");
-            break; // Iesi din bucla dupa ce ai sters prima nota cu ID-ul dat
+        // Verifica daca nota a fost stearsa
+        if (!deleted) {
+            System.out.println("There is no grade with the id " + gradeToDelete);
         }
     }
 
-    // Verifica daca nota a fost stearsa
-    if (!deleted) {
-        System.out.println("There is no grade with the id " + gradeToDelete);
-    }
-}
+    public void averageGrade(List<Subject>subjects,List<Grade>grades,Scanner scanner,AppUser appConnectedUser,Main mainInstance){
+        // Obține ID-ul subiectului asociat profesorului conectat
+        int subjectId=findSubjectByUserId(subjects,appConnectedUser.getId()).getIdSubject();
+        // Creează o instanță a clasei Main
+        System.out.println("Introduce student id student: ");
+        int idSt;
+        do{
+            if (scanner.hasNextInt()) {
+                idSt = scanner.nextInt();
+                scanner.nextLine();
+            } else {
+                System.out.println("Invalid input. Please enter a valid student's id.");
+                scanner.nextLine(); // Consumăm newline-ul rămas în buffer
+                idSt = 0; // Setăm name ca null pentru a forța continuarea buclei
+            }
+        } while (idSt == 0);
 
-public void averageGrade(List<Subject>subjects,List<Grade>grades,Scanner scanner,AppUser appConnectedUser,Main mainInstance){
-    // Obține ID-ul subiectului asociat profesorului conectat
-    int subjectId=findSubjectByUserId(subjects,appConnectedUser.getId()).getIdSubject();
-    // Creează o instanță a clasei Main
-    System.out.println("Introduce student id student: ");
-    int idSt;
-    do{
-        if (scanner.hasNextInt()) {
-            idSt = scanner.nextInt();
-            scanner.nextLine();
-        } else {
-            System.out.println("Invalid input. Please enter a valid student's id.");
-            scanner.nextLine(); // Consumăm newline-ul rămas în buffer
-            idSt = 0; // Setăm name ca null pentru a forța continuarea buclei
+        // Apelarea metodei non-statice calculateAverageGradeForSubject folosind instanța Main
+        double averageGrade = mainInstance.calculateAverageGradeForSubject(grades, subjectId,idSt);
+        // Afisarea rezultatului
+        System.out.println("The average grade for the subject with the id " + subjectId + " with the teacher's id  " + appConnectedUser.getId() + " is: " + averageGrade);
+    }
+
+    public void sortStudentsBySurnames(List<AppUser>users){
+        List<AppUser> students = users.stream()
+                .filter(user -> user.getRole().equals("student"))
+                .collect(Collectors.toList());
+
+        // Sortăm lista de studenți după surname
+        students.sort((student1, student2) -> student1.getLastName().compareToIgnoreCase(student2.getLastName()));
+
+        // Afișăm lista de studenți sortată
+        System.out.println("Students sorted after students' surnames:");
+        for (AppUser s : students) {
+            System.out.println("ID: " + s.getId() + ", Surname: " + s.getLastName() + ", Firstname: " + s.getFirstName());
         }
-    } while (idSt == 0);
-
-    // Apelarea metodei non-statice calculateAverageGradeForSubject folosind instanța Main
-    double averageGrade = mainInstance.calculateAverageGradeForSubject(grades, subjectId,idSt);
-    // Afisarea rezultatului
-    System.out.println("The average grade for the subject with the id " + subjectId + " with the teacher's id  " + appConnectedUser.getId() + " is: " + averageGrade);
-}
-
-public void sortStudentsBySurnames(List<AppUser>users){
-    List<AppUser> students = users.stream()
-            .filter(user -> user.getRole().equals("student"))
-            .collect(Collectors.toList());
-
-    // Sortăm lista de studenți după surname
-    students.sort((student1, student2) -> student1.getLastName().compareToIgnoreCase(student2.getLastName()));
-
-    // Afișăm lista de studenți sortată
-    System.out.println("Students sorted after students' surnames:");
-    for (AppUser s : students) {
-        System.out.println("ID: " + s.getId() + ", Surname: " + s.getLastName() + ", Firstname: " + s.getFirstName());
     }
-}
 
 }
 

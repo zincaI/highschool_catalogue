@@ -9,11 +9,6 @@ import static org.example.Main.findSubjectByIdSubject;
 
 public class StudentManager {
 
-//    List<AppUser> users = AppUser.loadUsers();
-//    List<Subject> subjects = Subject.loadUsers();
-//    List<Grade> grades = Grade.loadGrades();
-
-
     public static TextArea createStudentTextArea(int studentId,List<Grade> grades,List<Subject> subjects) {
         TextArea studentTextArea = new TextArea();
         studentTextArea.setEditable(false);
@@ -24,8 +19,7 @@ public class StudentManager {
                 for (Grade grade : grades) {
             if (grade.getAppId() == studentId) {
                 Subject subject = findSubjectByIdSubject(subjects, grade.getSubjectId());
-                studentInfo.append("Date: " + grade.getDate() + ", Subject: " + (subject != null ? subject.getName() : "N/A") +
-                        ", Grade: " + grade.getValue() + "\n");
+                studentInfo.append("Date: ").append(grade.getDate()).append(", Subject: ").append(subject != null ? subject.getName() : "N/A").append(", Grade: ").append(grade.getValue()).append("\n");
             }
         }
         studentTextArea.setText(studentInfo.toString());
