@@ -137,6 +137,7 @@ public class Main extends Application {
         exitButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;"); // Setăm culoarea de fundal, culoarea textului, fontul textului, marginile și culoarea marginii butonului
         exitButton.setOnAction(event -> teacherStage.close());
 
+        // Butonul pentru "Show students"
         Button showStudentsButton = new Button("Show students");
         showStudentsButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
         showStudentsButton.setOnAction(event -> {
@@ -144,11 +145,24 @@ public class Main extends Application {
             TextArea studentTextArea = TeacherManager.createStudentTextArea(users);
 
             VBox.setMargin(studentTextArea, new Insets(10, 0, 0, 0));
-            if(!studentsTextAreaAdded) {// Set margin to separate TextArea from the button
-                studentsTextAreaAdded = true;// Set margin to separate TextArea from the button
+            if (!studentsTextAreaAdded) {
+                studentsTextAreaAdded = true;
                 root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, studentTextArea); // Add the TextArea after the button
+
+                Button hideStudents = new Button("Hide");
+                hideStudents.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
+                hideStudents.setOnAction(e -> {
+                    root.getChildren().remove(hideStudents); // Remove the "Hide" button
+                    root.getChildren().remove(studentTextArea); // Remove the TextArea
+                    studentsTextAreaAdded = false;
+                    root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, showStudentsButton); // Add the "Show students" button back
+                });
+
+                // Add the "Hide" button immediately after the text area
+                root.getChildren().add(root.getChildren().indexOf(studentTextArea) + 1, hideStudents);
             }
         });
+
 
         // Butonul pentru "Show students with grades"
         Button showStudentsWithGradesButton = new Button("Show students with grades");
@@ -199,9 +213,14 @@ public class Main extends Application {
                             if(subject.getIdSubject()==subjectId)
                                 subj=subject;
                         }
+                        AppUser student=null;
+                        for(AppUser user:users){
+                            if(user.getId()==studentId)
+                                student=user;
+                        }
                         if(grade<=10&&grade>=0&&
                                 Objects.requireNonNull(subj).getAppId()==appConnectedUser.getId()&&
-                                Objects.equals(appConnectedUser.getRole(), "student")){
+                                Objects.equals(Objects.requireNonNull(student).getRole(), "student")){
                         try {
                             addGrade(users,
                                     subjects,
@@ -221,7 +240,7 @@ public class Main extends Application {
 
                         }
                         else{
-                            if(! Objects.equals(appConnectedUser.getRole(), "student")){
+                            if(!Objects.equals(Objects.requireNonNull(student).getRole(), "student")){
                                 errorLabel.setText("The student id is not valid.");
                             }
                            else if(grade>10||grade<0){
