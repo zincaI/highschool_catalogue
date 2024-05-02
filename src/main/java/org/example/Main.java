@@ -148,14 +148,16 @@ public class Main extends Application {
             if (!studentsTextAreaAdded) {
                 studentsTextAreaAdded = true;
                 root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, studentTextArea); // Add the TextArea after the button
+                root.getChildren().remove(showStudentsButton); // Remove the TextArea
 
                 Button hideStudents = new Button("Hide");
                 hideStudents.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-color: green; -fx-border-width: 2px;");
                 hideStudents.setOnAction(e -> {
                     root.getChildren().remove(hideStudents); // Remove the "Hide" button
                     root.getChildren().remove(studentTextArea); // Remove the TextArea
+                    root.getChildren().add(root.getChildren().indexOf(exitButton) + 1, showStudentsButton);
+
                     studentsTextAreaAdded = false;
-                    root.getChildren().add(root.getChildren().indexOf(showStudentsButton) + 1, showStudentsButton); // Add the "Show students" button back
                 });
 
                 // Add the "Hide" button immediately after the text area
